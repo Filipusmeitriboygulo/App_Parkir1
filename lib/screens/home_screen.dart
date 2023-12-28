@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'scanner_qr.dart';
 import 'scan_plat.dart';
 import 'package:camera/camera.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 // import 'package:flutter_experiment/camera_page.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -98,6 +99,14 @@ class _DataParkirState extends State<DataParkir> {
           "Data Parkir",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         )),
+        SizedBox(
+          height: 15,
+        ),
+        Container(
+            alignment: Alignment.center,
+            height: 200,
+            width: 200,
+            child: PrettyQrView.data(data: widget.noPlat)),
         SizedBox(
           height: 15,
         ),

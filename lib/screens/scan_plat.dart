@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'home_screen.dart';
+import 'package:intl/intl.dart';
 
 class CameraPage extends StatefulWidget {
   final List<CameraDescription>? cameras;
@@ -29,7 +31,9 @@ class _CameraPageState extends State<CameraPage> {
       if (!mounted) {
         return;
       }
-      setState(() {});
+      setState(() {
+
+      });
     });
   }
 
@@ -40,7 +44,7 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<void> uploadImage(File imageFile) async {
-    var apiUrl = Uri.parse('http://192.168.8.102:5000/process-image');
+    var apiUrl = Uri.parse('http://192.168.100.102:5000/process-image');
 
     try {
       var request = http.MultipartRequest('POST', apiUrl);
@@ -54,7 +58,7 @@ class _CameraPageState extends State<CameraPage> {
         String? result = await getResult();
         if (result != null) {
           processResult(result);
-          setState(() {});
+         
         }
       } else {
         print('Failed to upload image. Status code: ${response.statusCode}');
@@ -65,7 +69,7 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<String?> getResult() async {
-    var apiUrl = Uri.parse('http://192.168.8.102:5000/process-image');
+    var apiUrl = Uri.parse('http://192.168.100.102:5000/process-image');
 
     try {
       var response = await http.get(apiUrl);
@@ -85,6 +89,32 @@ class _CameraPageState extends State<CameraPage> {
     // Proses hasil plat
     // ... implementasi pengolahan hasil plat di sini
     print('Hasil Plates: $result');
+     try {
+      // Parse JSON respons
+      Map<String, dynamic> jsonResponse = json.decode(result);
+
+      // Ekstrak nilai "text"
+      var textValue = jsonResponse['Hasil Plates'][0]['text'];
+
+      // Tampilkan nilai ke terminal
+      print('Nilai Text: $textValue');
+
+      // Periksa apakah nilai tidak null atau kosong sebelum melakukan navigasi
+      if (textValue.isNotEmpty) {
+        // Navigasi ke halaman berikutnya dengan nilai teks yang diekstrak
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(
+            noPlat: "${textValue}",
+            tanggalJam:
+                "${DateFormat('dd-MM-yyyy').format(DateTime.now())} ${DateFormat('HH:mm:ss').format(DateTime.now())}"),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error parsing JSON: $e');
+    }
     // Pastikan bahwa result sesuai dengan struktur yang diharapkan
     // Misalnya, Anda bisa menambahkan validasi JSON di sini
   }
