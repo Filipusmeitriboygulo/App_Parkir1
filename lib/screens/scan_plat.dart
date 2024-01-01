@@ -107,7 +107,7 @@ class _CameraPageState extends State<CameraPage> {
           MaterialPageRoute(
             builder: (context) => HomeScreen(
             noPlat: "${textValue}",
-            tanggalJam:
+            tanggalJamMasuk:
                 "${DateFormat('dd-MM-yyyy').format(DateTime.now())} ${DateFormat('HH:mm:ss').format(DateTime.now())}"),
           ),
         );

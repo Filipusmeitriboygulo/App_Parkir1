@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:app_parkir/firebase_auth/firebase_auth_services.dart';
 import 'home_screen.dart';
 import 'registration_screen.dart';
 
@@ -9,15 +11,26 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final FirebaseAuthServices _auth = FirebaseAuthServices();
+
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController emailC = TextEditingController();
+  final TextEditingController passC = TextEditingController();
+  bool _isHidden = true;
+
+  @override
+  void dispose() {
+    emailC.dispose();
+    passC.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     //email field
     final emailField = TextFormField(
       autofocus: false,
-      controller: emailController,
+      controller: emailC,
       keyboardType: TextInputType.emailAddress,
       validator: (value) {
         if (value!.isEmpty) {
@@ -29,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
         return null;
       },
       onSaved: (value) {
-        emailController.text = value!;
+        emailC.text = value!;
       },
       textInputAction: TextInputAction.next,
       decoration: InputDecoration(
@@ -41,8 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
     //password field
     final passwordField = TextFormField(
       autofocus: false,
-      controller: passwordController,
-      obscureText: true,
+      controller: passC,
+      obscureText: _isHidden,
       validator: (value) {
         RegExp regex = RegExp(r'^.{3,}$');
         if (value!.isEmpty) {
@@ -54,11 +67,19 @@ class _LoginScreenState extends State<LoginScreen> {
         return null;
       },
       onSaved: (value) {
-        passwordController.text = value!;
+        passC.text = value!;
       },
       textInputAction: TextInputAction.done,
       decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.vpn_key),
+          prefixIcon: const Icon(Icons.vpn_key), 
+          suffixIcon: IconButton(
+            onPressed: () {
+              setState(() {
+                _isHidden = !(_isHidden);
+              });
+            },
+            icon: Icon(Icons.remove_red_eye),
+          ),
           contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           hintText: "Password",
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(30))),
@@ -67,15 +88,16 @@ class _LoginScreenState extends State<LoginScreen> {
     final loginButton = Material(
       elevation: 5,
       borderRadius: BorderRadius.circular(30),
-      color: Colors.red,
+      color: Colors.black,
       child: MaterialButton(
         padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
         minWidth: MediaQuery.of(context).size.width,
         onPressed: () {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => HomeScreen()));
+          // Navigator.pushReplacement(
+          //     context, MaterialPageRoute(builder: (context) => HomeScreen()));
+          _signIn();
         },
-        color: Colors.redAccent,
+        color: Colors.black,
         child: const Text(
           "login",
           textAlign: TextAlign.center,
@@ -98,13 +120,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        // SizedBox(
-                        //   height: 200,
-                        //   child: Image.asset(
-                        //     "assets/logo.png",
-                        //     fit: BoxFit.scaleDown,
-                        //   ),
-                        // ),
+                        SizedBox(
+                          height: 200,
+                          child: Image.asset(
+                            "assets/images/parkdin.png",
+                            fit: BoxFit.scaleDown,
+                          ),
+                        ),
                         const SizedBox(height: 45),
                         emailField,
                         const SizedBox(height: 10),
@@ -138,5 +160,17 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ));
+  }
+
+  void _signIn() async {
+    String email = emailC.text;
+    String pass = passC.text;
+
+    User? user = await _auth.signInWithEmailAndPassword(email, pass);
+    if (user != null) {
+      print("login berhasil");
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => HomeScreen()));
+    }
   }
 }

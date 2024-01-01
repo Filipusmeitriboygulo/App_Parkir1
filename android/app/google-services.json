@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "335655530106",
+    "firebase_url": "https://app-parkir-e7984-default-rtdb.firebaseio.com",
+    "project_id": "app-parkir-e7984",
+    "storage_bucket": "app-parkir-e7984.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:335655530106:android:cf17705c5dda499d8615c3",
+        "android_client_info": {
+          "package_name": "com.example.app_parkir"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClwFcUs8cZzplsELuimFq6pZV0qJP7Vdo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

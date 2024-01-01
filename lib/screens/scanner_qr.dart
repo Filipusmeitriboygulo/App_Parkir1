@@ -108,10 +108,13 @@ class _QRScanPageState extends State<QRScanPage> {
       MaterialPageRoute(
         builder: (context) => HomeScreen(
             noPlat: "${result}",
-            tanggalJam:
-                "${DateFormat('dd-MM-yyyy').format(DateTime.now())} ${DateFormat('HH:mm:ss').format(DateTime.now())}"),
+            tanggalJamMasuk:
+                "${DateFormat('dd-MM-yyyy').format(DateTime.now())} ${DateFormat('HH:mm:ss').format(DateTime.now())}",
+            tanggalJamKeluar:
+               // "${DateFormat('dd-MM-yyyy').format(DateTime.now())} ${DateFormat('HH:mm:ss').format(DateTime.now())}",
+               ""
       ),
-    );
+    ));
   }
 
   @override

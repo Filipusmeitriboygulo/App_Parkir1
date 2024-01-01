@@ -1,3 +1,7 @@
+import 'package:app_parkir/firebase_auth/firebase_auth_services.dart';
+import 'package:app_parkir/screens/login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 
@@ -8,22 +12,36 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  final FirebaseAuthServices _auth = FirebaseAuthServices();
+
   final _formKey = GlobalKey<FormState>();
-  final firstnameEditingController = TextEditingController();
-  final secondnameEditingController = TextEditingController();
-  final emailEditingController = TextEditingController();
-  final passwordEditingController = TextEditingController();
-  final confirmpassEditingController = TextEditingController();
+  final namaC = TextEditingController();
+  final emailC = TextEditingController();
+  final passC = TextEditingController();
+  final confirmPassC = TextEditingController();
+
+  @override
+  void dispose() {
+    namaC.dispose();
+    emailC.dispose();
+    passC.dispose();
+    confirmPassC.dispose();
+    super.dispose();
+  }
+
+  // final databaseReference =
+  //     FirebaseDatabase.instance.ref("parkiran/juru_parkir"); //untuk insert lewat firebase
+
   @override
   Widget build(BuildContext context) {
     final firstNameField = TextFormField(
       autofocus: false,
-      controller: firstnameEditingController,
+      controller: namaC,
       keyboardType: TextInputType.name,
       validator: (value) {
         RegExp regex = RegExp(r'^.{3,}$');
         if (value!.isEmpty) {
-          return ("first name is Required");
+          return (" name is Required");
         }
         if (!regex.hasMatch(value)) {
           return ("Please Enter Valid first name min 3 Character");
@@ -31,7 +49,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         return null;
       },
       onSaved: (value) {
-        firstnameEditingController.text = value!;
+        namaC.text = value!;
       },
       textInputAction: TextInputAction.next,
       decoration: InputDecoration(
@@ -40,33 +58,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           hintText: "Nama Depan",
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
     );
-    final secondNameField = TextFormField(
-      autofocus: false,
-      controller: secondnameEditingController,
-      keyboardType: TextInputType.name,
-      validator: (value) {
-        RegExp regex = RegExp(r'^.{3,}$');
-        if (value!.isEmpty) {
-          return ("Second Name is Required");
-        }
-        if (!regex.hasMatch(value)) {
-          return ("Please Enter Valid Second Name min 3 Character");
-        }
-        return null;
-      },
-      onSaved: (value) {
-        secondnameEditingController.text = value!;
-      },
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.account_circle),
-          contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
-          hintText: "Nama Belakang",
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
-    );
     final emailField = TextFormField(
       autofocus: false,
-      controller: emailEditingController,
+      controller: emailC,
       keyboardType: TextInputType.emailAddress,
       validator: (value) {
         RegExp regex = RegExp(r'^.{3,}$');
@@ -79,7 +73,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         return null;
       },
       onSaved: (value) {
-        emailEditingController.text = value!;
+        emailC.text = value!;
       },
       textInputAction: TextInputAction.next,
       decoration: InputDecoration(
@@ -90,10 +84,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
     final passwordField = TextFormField(
       autofocus: false,
-      controller: passwordEditingController,
+      controller: passC,
       obscureText: true,
       onSaved: (value) {
-        passwordEditingController.text = value!;
+        passC.text = value!;
       },
       textInputAction: TextInputAction.next,
       validator: (value) {
@@ -114,17 +108,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
     final confirmPassField = TextFormField(
       autofocus: false,
-      controller: confirmpassEditingController,
+      controller: confirmPassC,
       obscureText: true,
       validator: (value) {
-        if (confirmpassEditingController.text !=
-            passwordEditingController.text) {
+        if (confirmPassC.text != passC.text) {
           return "password dont match";
         }
         return null;
       },
       onSaved: (value) {
-        confirmpassEditingController.text = value!;
+        confirmPassC.text = value!;
       },
       textInputAction: TextInputAction.done,
       decoration: InputDecoration(
@@ -140,9 +133,43 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       child: MaterialButton(
         padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
         minWidth: MediaQuery.of(context).size.width,
-        onPressed: () {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        onPressed: () async {
+          if ((_formKey.currentState!.validate())) {
+            _signUp();
+            // try {
+            //   await databaseReference
+            //       .child(DateTime.now().microsecond.toString())
+            //       .set({
+            //     'pegawai': namaC.text.toString(),
+            //     'email': emailC.text.toString(),
+            //     'password': paasC.text.toString()
+            //   });
+
+            //   showDialog<String>(
+            //     context: context,
+            //     builder: (BuildContext context) => AlertDialog(
+            //       title: const Text('Berhasil Input Data'),
+            //       content: Container(
+            //         height: 200,
+            //       ),
+            //       actions: [
+            //         TextButton(
+            //             onPressed: () {
+            //               Navigator.pop(context);
+            //               Navigator.pushReplacement(
+            //                   context,
+            //                   MaterialPageRoute(
+            //                       builder: (context) => LoginScreen()));
+            //             },
+            //             child: Text("Ke Halaman Login"))
+            //       ],
+            //     ),
+            //   );
+            // } catch (e) {}
+          }
+
+          // Navigator.pushReplacement(
+          //     context, MaterialPageRoute(builder: (context) => HomeScreen()));
         },
         child: const Text(
           "Sign Up",
@@ -174,16 +201,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(
-                          height: 150,
+                          height: 200,
                           child: Image.asset(
-                            "assets/logo.png",
-                            fit: BoxFit.contain,
+                            "assets/images/parkdin.png",
+                            fit: BoxFit.scaleDown,
                           ),
                         ),
                         const SizedBox(height: 25),
                         firstNameField,
-                        const SizedBox(height: 25),
-                        secondNameField,
                         const SizedBox(height: 25),
                         emailField,
                         const SizedBox(height: 25),
@@ -199,5 +224,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             ),
           ),
         ));
+  }
+
+  void _signUp() async {
+    String username = namaC.text;
+    String email = emailC.text;
+    String pass = passC.text;
+
+    User? user = await _auth.signUpWithEmailAndPassword(email, pass);
+    if (user != null) {
+      print("user berhasil ditambahkan");
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    }
   }
 }
