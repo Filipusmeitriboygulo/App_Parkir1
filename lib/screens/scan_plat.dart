@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'home_screen.dart';
@@ -11,6 +13,8 @@ class CameraPage extends StatefulWidget {
   final List<CameraDescription>? cameras;
   const CameraPage({this.cameras, Key? key}) : super(key: key);
 
+ 
+
   @override
   _CameraPageState createState() => _CameraPageState();
 }
@@ -19,6 +23,11 @@ class _CameraPageState extends State<CameraPage> {
   late CameraController controller;
   XFile? pictureFile;
   String qrData = '';
+
+
+    
+  
+
 
   @override
   void initState() {
@@ -44,7 +53,7 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<void> uploadImage(File imageFile) async {
-    var apiUrl = Uri.parse('http://192.168.100.102:5000/process-image');
+    var apiUrl = Uri.parse('http://192.168.1.87:5000/process-image');
 
     try {
       var request = http.MultipartRequest('POST', apiUrl);
@@ -69,7 +78,7 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<String?> getResult() async {
-    var apiUrl = Uri.parse('http://192.168.100.102:5000/process-image');
+    var apiUrl = Uri.parse('http://192.168.1.87:5000/process-image');
 
     try {
       var response = await http.get(apiUrl);
@@ -86,6 +95,9 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   void processResult(String result) {
+
+  
+
     // Proses hasil plat
     // ... implementasi pengolahan hasil plat di sini
     print('Hasil Plates: $result');
@@ -96,12 +108,18 @@ class _CameraPageState extends State<CameraPage> {
       // Ekstrak nilai "text"
       var textValue = jsonResponse['Hasil Plates'][0]['text'];
 
+      
+
       // Tampilkan nilai ke terminal
       print('Nilai Text: $textValue');
 
       // Periksa apakah nilai tidak null atau kosong sebelum melakukan navigasi
       if (textValue.isNotEmpty) {
+
+        
+
         // Navigasi ke halaman berikutnya dengan nilai teks yang diekstrak
+        Navigator.pop(context);
         Navigator.push(
           context,
           MaterialPageRoute(

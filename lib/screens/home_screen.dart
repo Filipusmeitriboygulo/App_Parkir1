@@ -6,7 +6,24 @@ import 'scanner_qr.dart';
 import 'scan_plat.dart';
 import 'package:camera/camera.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
-// import 'package:flutter_experiment/camera_page.dart';
+import 'package:blue_thermal_printer/blue_thermal_printer.dart';
+
+class DataParkir extends StatefulWidget {
+  const DataParkir({
+    super.key,
+    required this.noPlat,
+    required this.tanggalJamMasuk,
+    required this.tanggalJamKeluar,
+  });
+
+  final String noPlat;
+  final String tanggalJamMasuk;
+  final String tanggalJamKeluar;
+
+  @override
+  State<DataParkir> createState() => _DataParkirState();
+}
+
 
 class HomeScreen extends StatelessWidget {
   final String noPlat;
@@ -30,7 +47,35 @@ class HomeScreen extends StatelessWidget {
             "Park-Din",
             style: TextStyle(color: Colors.white),
           ),
-          actions: [IconButton(onPressed: () {}, icon: Icon(Icons.person))],
+          actions: [PopupMenuButton(itemBuilder: (context) => [
+            PopupMenuItem(child: Text('Data Parkir'),
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=> PrintPage()));
+            }
+              ),
+                      PopupMenuItem(
+                        child: Text('koneksi printer'),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PrintPage()));
+                        },
+                      ),
+                       PopupMenuItem(child: Text('Data Parkir'),
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=> PrintPage()));
+            }
+              ),
+                      PopupMenuItem(
+                        child: Text('LogOut'),
+                        onTap: () {},
+                      ),
+
+          ]
+          )
+          
+          ],
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.qr_code),
@@ -94,28 +139,33 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class DataParkir extends StatefulWidget {
-  const DataParkir({
-    super.key,
-    required this.noPlat,
-    required this.tanggalJamMasuk,
-    required this.tanggalJamKeluar,
-  });
 
-  final String noPlat;
-  final String tanggalJamMasuk;
-  final String tanggalJamKeluar;
-
-  @override
-  State<DataParkir> createState() => _DataParkirState();
-}
 
 class _DataParkirState extends State<DataParkir> {
-  String _jenisKendaraan = "";
+
+  BlueThermalPrinter printer = BlueThermalPrinter.instance;
+
+  String jenisKendaraan = "";
+
+  void printData(
+      String idPetugas, String noPlat, String jk, String masuk) async {
+    if ((await printer.isConnected)!) {
+      printer.printCustom('jenis kendaraan: $jk', 1, 1);
+      printer.printCustom('id petugas: $idPetugas', 1, 1);
+      printer.printCustom('tanggal/jam masuk: $masuk', 1, 1);
+      printer.printQRcode(noPlat, 200, 200, 1);
+      printer.printNewLine();
+     
+    }
+  }
+ 
+
+    
+User user = FirebaseAuth.instance.currentUser!;
 
   final databaseReference = FirebaseDatabase.instance
-      .ref("parkiran/kendaraan"); //untuk insert lewat firebase
-  User user = FirebaseAuth.instance.currentUser!;
+      .ref("parkiran/juru_parkir"); //untuk insert lewat firebase
+  
 
   @override
   Widget build(BuildContext context) {
@@ -158,10 +208,10 @@ class _DataParkirState extends State<DataParkir> {
                             ListTile(
                               leading: Radio(
                                   value: "mobil",
-                                  groupValue: _jenisKendaraan,
+                                  groupValue: jenisKendaraan,
                                   onChanged: (value) {
                                     setState(() {
-                                      _jenisKendaraan = value!;
+                                      jenisKendaraan = value!;
                                       Navigator.pop(context);
                                     });
                                   }),
@@ -170,10 +220,10 @@ class _DataParkirState extends State<DataParkir> {
                             ListTile(
                               leading: Radio(
                                   value: "Motor",
-                                  groupValue: _jenisKendaraan,
+                                  groupValue: jenisKendaraan,
                                   onChanged: (value) {
                                     setState(() {
-                                      _jenisKendaraan = value!;
+                                      jenisKendaraan = value!;
                                       Navigator.pop(context);
                                     });
                                   }),
@@ -184,8 +234,8 @@ class _DataParkirState extends State<DataParkir> {
                       ),
                     ),
                   ),
-              child: _jenisKendaraan != ""
-                  ? Text("${_jenisKendaraan}")
+              child: jenisKendaraan != ""
+                  ? Text("${jenisKendaraan}")
                   : Text("Pilih")),
         ),
         ListTile(
@@ -228,13 +278,14 @@ class _DataParkirState extends State<DataParkir> {
                             .set({
                           'id_juruparkir': user.uid,
                           'no_plat': widget.noPlat,
-                          'jenis_kendaraan': _jenisKendaraan,
+                          'jenis_kendaraan': jenisKendaraan,
                           'tanggal_masuk': widget.tanggalJamMasuk
                         });
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (builder) => const PrintPage()));
+                                builder: (builder) =>  PrintPage()));
+                               
                       },
                       child: Text("Simpan")),
                 ],
@@ -243,18 +294,18 @@ class _DataParkirState extends State<DataParkir> {
                 onPressed: ()async
                 //untuk input kendaraan masuk on progres
                 {
-                   await databaseReference
-                            .child(DateTime.now().microsecond.toString())
+                   await databaseReference.child(user.uid).child('kendaraan').child(DateTime.now().microsecond.toString())
                             .set({
-                          'id_juruparkir': user.uid,
+                          'id_kendaraan': 'kendaraan${DateTime.now().microsecond.toString()}',
                           'no_plat': widget.noPlat,
-                          'jenis_kendaraan': _jenisKendaraan,
+                          'jenis_kendaraan': jenisKendaraan,
                           'tanggal_masuk': widget.tanggalJamMasuk
                         });
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (builder) => const PrintPage()));
+                    printData(
+                      'kendaraan${DateTime.now().microsecond.toString()}', '${widget.noPlat}', '${jenisKendaraan}', '${widget.tanggalJamMasuk}');
+                      Navigator.pop(context);
+                    
+                          
                 },
                 child: Text("Cetak"))
       ],
